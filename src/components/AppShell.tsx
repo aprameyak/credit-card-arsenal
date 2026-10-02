@@ -26,7 +26,7 @@ const SECONDARY_NAV = [
   { href: "/timeline", label: "Timeline" },
   { href: "/renewal", label: "Renewal" },
   { href: "/spending", label: "Spending" },
-  { href: "/admin", label: "Admin" },
+  { href: "/admin", label: "Card editor" },
 ] as const;
 
 const SHELL_SKIP = new Set(["/", "/onboarding"]);

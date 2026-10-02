@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import {
   Badge,
   EmptyState,
@@ -29,7 +29,8 @@ function sourceLabel(t: ApplicationRuleSourceType): string {
 export default function TimelinePage() {
   const profile = useArsenalStore((s) => s.profile);
   const catalog = useArsenalStore((s) => s.catalog);
-  const [notes, setNotes] = useState("");
+  const setProfile = useArsenalStore((s) => s.setProfile);
+  const notes = profile.planningNotes || "";
 
   const events = useMemo(() => {
     const items: {
@@ -172,11 +173,11 @@ export default function TimelinePage() {
           <textarea
             className="field mt-2 min-h-[80px] w-full"
             value={notes}
-            onChange={(e) => setNotes(e.target.value)}
+            onChange={(e) => setProfile({ planningNotes: e.target.value })}
             placeholder="e.g. wait until 4/24 clears…"
           />
           <p className="mt-1 text-[11px] text-bone-dim">
-            Not persisted yet — export profile JSON from Settings to save externally.
+            Saved in local browser storage with your profile.
           </p>
         </label>
       </Panel>

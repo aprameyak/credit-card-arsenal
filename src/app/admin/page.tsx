@@ -51,9 +51,9 @@ export default function AdminPage() {
   return (
     <div>
       <PageHeader
-        eyebrow="Content Admin"
+        eyebrow="Local card editor"
         title="Card data freshness"
-        description="Update fees, offers, multipliers, and availability here — never hard-code live terms into UI components. Users see last-verified dates."
+        description="Update fees, offers, and multipliers locally in this browser. Users see last-verified dates."
         action={
           <Button variant="secondary" onClick={resetCatalog}>
             Reset catalog

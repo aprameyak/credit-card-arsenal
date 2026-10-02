@@ -105,7 +105,7 @@ export default function SettingsPage() {
         <p className="text-sm text-bone-muted">
           Point valuations: edit on{" "}
           <Link href="/admin" className="text-signal hover:underline">
-            Admin
+            Card editor
           </Link>{" "}
           or during onboarding.
         </p>

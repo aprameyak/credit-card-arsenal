@@ -38,6 +38,7 @@ function baseProfile(): UserProfile {
       },
     ],
     applicationHistory: [],
+    planningNotes: "",
     closedCards: [],
     spending,
     valuations: [...DEFAULT_VALUATIONS],

@@ -220,6 +220,7 @@ export interface UserProfile {
   ownedCards: OwnedCard[];
   applicationHistory: ApplicationHistoryEntry[];
   closedCards: { cardId: string; closedAt: string }[];
+  planningNotes: string;
   spending: SpendingProfile;
   valuations: PointValuation[];
   createdAt: string;

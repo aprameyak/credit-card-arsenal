@@ -38,6 +38,7 @@ function defaultProfile(): UserProfile {
     ownedCards: [],
     applicationHistory: [],
     closedCards: [],
+    planningNotes: "",
     spending: emptySpending(),
     valuations: [...DEFAULT_VALUATIONS],
     createdAt: now,
@@ -101,7 +102,7 @@ export const useArsenalStore = create<ArsenalState>()(
         }
         get().addOwnedCard({
           cardId,
-          openedAt: null,
+          openedAt: new Date().toISOString().slice(0, 10),
           annualFeePaid: null,
           creditLimit: null,
           benefitsUsed: {},
