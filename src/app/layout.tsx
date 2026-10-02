@@ -30,7 +30,11 @@ export const metadata: Metadata = {
     "Map coverage, route purchases, and model pathways for your credit card wallet — with transparent valuation assumptions.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
     <html
       lang="en"

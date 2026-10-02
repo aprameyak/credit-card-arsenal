@@ -47,12 +47,26 @@ export function ecosystemSynergyNote(
   if (ownedPrograms.has(candidate.rewardProgram)) {
     return `Stacks with your existing ${candidate.rewardProgram} balance — transfers and earn combine in one ecosystem.`;
   }
-  const airlineOverlap = findTransferPartnersByName(
-    catalog,
-    candidate.issuer,
-    "airline"
+
+  const ownedPartnerNames = new Set<string>();
+  for (const id of ownedCardIds) {
+    const card = catalog.find((c) => c.id === id);
+    if (!card) continue;
+    for (const p of card.transferPartners) {
+      ownedPartnerNames.add(p.name.toLowerCase());
+    }
+  }
+  const overlapping = candidate.transferPartners.filter((p) =>
+    ownedPartnerNames.has(p.name.toLowerCase())
   );
-  if (airlineOverlap.length > 0 && candidate.transferPartners.length > 0) {
+  if (overlapping.length > 0) {
+    const sample = overlapping
+      .slice(0, 2)
+      .map((p) => p.name)
+      .join(", ");
+    return `Shares transfer partners you already reach (${sample}) — compare whether another program adds new destinations.`;
+  }
+  if (candidate.transferPartners.length > 0 && ownedPartnerNames.size > 0) {
     return "Adds transfer options; compare overlap with cards you already hold before applying.";
   }
   return null;

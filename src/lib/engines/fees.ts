@@ -31,7 +31,6 @@ function userBenefitsValue(card: Card, owned?: OwnedCard): number {
     if (custom != null) return sum + custom;
     const status = owned?.benefitStatuses?.[b.id];
     if (status === "not_valuable" || status === "unused") return sum;
-    if (status === "partial" && custom != null) return sum + custom;
     return sum + b.estimatedAnnualValue;
   }, 0);
 }
@@ -61,19 +60,37 @@ function renewalActionForNet(
   return { action: "reassess_usage", notes };
 }
 
+/**
+ * Rewards attributed to this card under wallet routing when owned;
+ * solo optimization only when the card is not in the wallet.
+ */
+function rewardsForCard(
+  profile: UserProfile,
+  card: Card,
+  catalog?: Card[]
+): number {
+  const walletCards = catalog
+    ? getOwnedCardObjects(profile.ownedCards, catalog).map((p) => p.card)
+    : [];
+  const inWallet = walletCards.some((c) => c.id === card.id);
+  const cards = inWallet ? walletCards : [card];
+  const { routing } = optimizeSpending(
+    cards,
+    profile.spending,
+    profile.valuations
+  );
+  return routing
+    .filter((r) => r.cardId === card.id)
+    .reduce((s, r) => s + r.annualRewards, 0);
+}
+
 export function analyzeCardFees(
   profile: UserProfile,
   card: Card,
   owned?: OwnedCard,
   catalog?: Card[]
 ): FeeAnalysis {
-  const soloRewards = optimizeSpending(
-    [card],
-    profile.spending,
-    profile.valuations
-  ).totalRewards;
-
-  const rewardsValue = soloRewards;
+  const rewardsValue = rewardsForCard(profile, card, catalog);
   const creditsValue = userCreditValue(card, owned);
   const benefitsValue = userBenefitsValue(card, owned);
 

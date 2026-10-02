@@ -92,11 +92,3 @@ export function scoreWalletComplexity(cards: Card[]): ComplexityScore {
 
   return { score, label, factors };
 }
-
-export function ecosystemLabels(cards: Card[]): string[] {
-  const set = new Set<string>();
-  for (const c of cards) {
-    set.add(c.rewardProgram || c.issuer);
-  }
-  return [...set].sort();
-}

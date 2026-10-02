@@ -7,28 +7,25 @@ import {
   Stat,
 } from "@/components/ui";
 import { analyzeArsenal } from "@/lib/engines/arsenal";
-import {
-  estimateCategoryRewards,
-  getOwnedCardObjects,
-} from "@/lib/engines/spending";
-import { ALL_CATEGORIES, annualize, formatCurrency } from "@/lib/utils";
+import { analyzeRenewals } from "@/lib/engines/fees";
 import { useArsenalStore } from "@/lib/store";
+import { formatCurrency } from "@/lib/utils";
 
 export default function FeesPage() {
   const profile = useArsenalStore((s) => s.profile);
   const catalog = useArsenalStore((s) => s.catalog);
   const analysis = analyzeArsenal(profile, catalog);
-  const pairs = getOwnedCardObjects(profile.ownedCards, catalog);
+  const renewals = analyzeRenewals(profile, catalog);
 
   return (
     <div>
       <PageHeader
         eyebrow="Fees"
         title="Fee justification"
-        description="Compare annual fees to estimated earn and credit face value — we do not recommend closing accounts."
+        description="Compare annual fees to wallet-routed earn and credit values — we do not recommend closing accounts."
       />
 
-      {pairs.length === 0 ? (
+      {renewals.length === 0 ? (
         <EmptyState title="No cards in wallet" description="Add cards to analyze fee drag." />
       ) : (
         <>
@@ -47,66 +44,46 @@ export default function FeesPage() {
           </div>
 
           <div className="space-y-4 animate-rise">
-            {pairs.map(({ card }) => {
-              const creditTotal = card.credits.reduce(
-                (s, c) => s + c.annualValue,
-                0
-              );
-              let maxCategoryRewards = 0;
-              for (const cat of ALL_CATEGORIES) {
-                const spend = annualize(
-                  profile.spending.amounts[cat],
-                  profile.spending.mode
-                );
-                maxCategoryRewards = Math.max(
-                  maxCategoryRewards,
-                  estimateCategoryRewards(
-                    card,
-                    cat,
-                    spend,
-                    profile.valuations
-                  )
-                );
-              }
-              const net = maxCategoryRewards + creditTotal - card.annualFee;
-
-              return (
-                <Panel key={card.id}>
-                  <h3 className="font-display text-lg font-semibold text-bone">
-                    {card.issuer} {card.cardName}
-                  </h3>
-                  <dl className="mt-4 grid gap-3 sm:grid-cols-2 text-sm">
-                    <div>
-                      <dt className="text-xs text-bone-dim">Annual fee</dt>
-                      <dd>{formatCurrency(card.annualFee)}</dd>
-                    </div>
-                    <div>
-                      <dt className="text-xs text-bone-dim">Credits (face)</dt>
-                      <dd className="text-amber">{formatCurrency(creditTotal)}</dd>
-                    </div>
-                    <div>
-                      <dt className="text-xs text-bone-dim">
-                        Best single-category earn (rough)
-                      </dt>
-                      <dd className="text-signal">
-                        {formatCurrency(maxCategoryRewards)}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt className="text-xs text-bone-dim">Fee vs value snapshot</dt>
-                      <dd className={net >= 0 ? "text-signal" : "text-danger"}>
-                        {formatCurrency(net)}
-                      </dd>
-                    </div>
-                  </dl>
-                  <p className="mt-4 text-xs leading-relaxed text-bone-dim">
-                    Snapshot uses your spend inputs and valuation assumptions. Keeping or
-                    product-changing a card depends on issuer rules, credit age, and your
-                    goals — evaluate tradeoffs yourself; Arsenal does not advise closures.
-                  </p>
-                </Panel>
-              );
-            })}
+            {renewals.map((a) => (
+              <Panel key={a.cardId}>
+                <h3 className="font-display text-lg font-semibold text-bone">
+                  {a.cardName}
+                </h3>
+                <dl className="mt-4 grid gap-3 sm:grid-cols-2 text-sm">
+                  <div>
+                    <dt className="text-xs text-bone-dim">Annual fee</dt>
+                    <dd>{formatCurrency(a.annualFee)}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs text-bone-dim">Credits (tracked)</dt>
+                    <dd className="text-amber">{formatCurrency(a.creditsValue)}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs text-bone-dim">
+                      Est. rewards (wallet routing)
+                    </dt>
+                    <dd className="text-signal">
+                      {formatCurrency(a.rewardsValue)}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs text-bone-dim">Ongoing net (est.)</dt>
+                    <dd
+                      className={
+                        a.ongoing.netValue >= 0 ? "text-signal" : "text-danger"
+                      }
+                    >
+                      {formatCurrency(a.ongoing.netValue)}
+                    </dd>
+                  </div>
+                </dl>
+                <p className="mt-4 text-xs leading-relaxed text-bone-dim">
+                  Rewards are the share routed to this card in your current wallet, not
+                  solo-card earn. Keeping or product-changing depends on issuer rules and
+                  your goals — Arsenal does not advise closures.
+                </p>
+              </Panel>
+            ))}
           </div>
         </>
       )}

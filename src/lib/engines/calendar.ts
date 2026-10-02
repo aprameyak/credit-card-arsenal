@@ -89,10 +89,12 @@ export function buildSpendingCalendar(
   }
 
   for (let i = 0; i < 2; i++) {
-    const q = (quarterIdx + i) % 4;
+    const qOffset = quarterIdx + i;
+    const q = qOffset % 4;
+    const year = now.getFullYear() + Math.floor(qOffset / 4);
     periods.push({
-      id: `q-${q}`,
-      label: `${QUARTERS[q]} ${now.getFullYear()}`,
+      id: `q-${year}-${q}`,
+      label: `${QUARTERS[q]} ${year}`,
       kind: "quarter",
       rotatingHints: rotating,
       defaultRouting,

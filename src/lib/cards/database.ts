@@ -835,7 +835,7 @@ export const CARD_DATABASE: Card[] = [
 
 export function getCardById(
   id: string,
-  catalog: Card[] = CARD_DATABASE
+  catalog?: Card[]
 ): Card | undefined {
-  return catalog.find((c) => c.id === id) ?? CARD_DATABASE.find((c) => c.id === id);
+  return (catalog ?? CARD_DATABASE).find((c) => c.id === id);
 }

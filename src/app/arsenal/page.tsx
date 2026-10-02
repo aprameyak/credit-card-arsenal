@@ -9,8 +9,7 @@ import {
   Panel,
   Stat,
 } from "@/components/ui";
-import { analyzeArsenal, gapCategories } from "@/lib/engines/arsenal";
-import { computeRouting } from "@/lib/engines/arsenal";
+import { analyzeArsenal, computeRouting, gapCategories } from "@/lib/engines/arsenal";
 import { analyzeAllWelcomeBonuses } from "@/lib/engines/welcome";
 import { getOwnedCardObjects } from "@/lib/engines/spending";
 import { VALUATION_ASSUMPTIONS } from "@/lib/engines/valuation";

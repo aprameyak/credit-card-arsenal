@@ -28,9 +28,9 @@ function applySpendingOverrides(
 ): SpendingProfile {
   if (opts.spendingOverride) return opts.spendingOverride;
   if (!opts.spendingOverrides) return profile.spending;
+  // Preserve the profile's spend mode so monthly inputs are not treated as annual.
   return {
     ...profile.spending,
-    mode: "annual",
     amounts: {
       ...profile.spending.amounts,
       ...opts.spendingOverrides,
@@ -122,10 +122,3 @@ export function simulateWallet(
   };
 }
 
-export function simulateWalletChange(
-  profile: UserProfile,
-  catalog: import("../types").Card[],
-  opts: SimulateWalletOptions = {}
-): SimulationDiff {
-  return simulateWallet(profile, catalog, opts);
-}

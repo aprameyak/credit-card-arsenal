@@ -42,11 +42,12 @@ export function explainCandidateCard(
       ? "Net change if this card joins your wallet and spend routes optimally."
       : "Eligibility issues may prevent applying; figures assume the card is in wallet.",
     figures: [
-      { label: "Incremental net (yr 1 est.)", value: formatCurrency(incremental) },
+      { label: "Incremental net (ongoing est.)", value: formatCurrency(incremental) },
       { label: "Annual fee", value: formatCurrency(card.annualFee) },
     ],
     assumptions: [
       "Uses your point valuations and spending profile.",
+      "Ongoing net excludes welcome bonus; see welcome block when shown.",
       "Includes catalog credit values unless you override on owned cards.",
     ],
   });

@@ -1,4 +1,4 @@
-import { CARD_DATABASE, getCardById } from "../cards/database";
+import { CARD_DATABASE } from "../cards/database";
 import type {
   Card,
   OwnedCard,
@@ -196,8 +196,7 @@ export function getOwnedCardObjects(
 ): { owned: OwnedCard; card: Card }[] {
   return ownedCards
     .map((owned) => {
-      const card =
-        catalog.find((c) => c.id === owned.cardId) ?? getCardById(owned.cardId);
+      const card = catalog.find((c) => c.id === owned.cardId);
       return card ? { owned, card } : null;
     })
     .filter((x): x is { owned: OwnedCard; card: Card } => x != null);
@@ -220,7 +219,7 @@ export function optimizeSpending(
     const annualSpend = annualize(spending.amounts[category], spending.mode);
     if (annualSpend <= 0) continue;
 
-    let best: { card: Card; rate: number; rewards: number } | null = null;
+    let best: { card: Card; rewards: number } | null = null;
     for (const card of cards) {
       const rewards = estimateCategoryRewards(
         card,
@@ -228,19 +227,21 @@ export function optimizeSpending(
         annualSpend,
         valuations
       );
-      const rate = categoryEffectiveRate(card, category, valuations);
       if (!best || rewards > best.rewards) {
-        best = { card, rate, rewards };
+        best = { card, rewards };
       }
     }
 
     if (best) {
       totalRewards += best.rewards;
+      // Blended rate after caps — face multipliers misclassify capped earn as "strong".
+      const effectiveRate =
+        annualSpend > 0 ? best.rewards / annualSpend : 0;
       routing.push({
         category,
         cardId: best.card.id,
         cardName: best.card.cardName,
-        effectiveRate: best.rate,
+        effectiveRate,
         annualRewards: best.rewards,
         assumptions: [],
       });

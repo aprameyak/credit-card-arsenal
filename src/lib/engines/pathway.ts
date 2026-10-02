@@ -15,20 +15,26 @@ export interface EligibilityResult {
 }
 
 function countChase524(profile: UserProfile, catalog?: Card[]): number {
+  const counted = new Set<string>();
   let n = 0;
+
+  const consider = (cardId: string, at: string) => {
+    if (counted.has(cardId)) return;
+    const card = getCardById(cardId, catalog);
+    if (!card || card.issuer !== "Chase") return;
+    if (card.businessOrPersonal === "business") return;
+    if (monthsBetween(at) >= 24) return;
+    counted.add(cardId);
+    n += 1;
+  };
+
   for (const entry of profile.applicationHistory) {
     if (entry.outcome !== "approved") continue;
-    const card = getCardById(entry.cardId, catalog);
-    if (!card || card.issuer !== "Chase") continue;
-    if (card.businessOrPersonal === "business") continue;
-    if (monthsBetween(entry.appliedAt) < 24) n += 1;
+    consider(entry.cardId, entry.appliedAt);
   }
   for (const owned of profile.ownedCards) {
     if (!owned.openedAt) continue;
-    const card = getCardById(owned.cardId, catalog);
-    if (!card || card.issuer !== "Chase") continue;
-    if (card.businessOrPersonal === "business") continue;
-    if (monthsBetween(owned.openedAt) < 24) n += 1;
+    consider(owned.cardId, owned.openedAt);
   }
   return n;
 }
@@ -92,6 +98,18 @@ function ownedSet(profile: UserProfile): Set<string> {
   return new Set(profile.ownedCards.map((o) => o.cardId));
 }
 
+function emptyOwned(cardId: string) {
+  return {
+    cardId,
+    openedAt: null,
+    annualFeePaid: null,
+    creditLimit: null,
+    benefitsUsed: {},
+    welcomeBonusCompleted: false,
+    welcomeBonusValueRealized: 0,
+  };
+}
+
 function stepForCard(
   card: Card,
   profile: UserProfile,
@@ -113,6 +131,37 @@ function stepForCard(
   };
 }
 
+/** Recompute step values sequentially so overlapping spend is not double-counted. */
+function sequentializeSteps(
+  steps: PathwayStep[],
+  profile: UserProfile,
+  catalog: Card[]
+): PathwayStep[] {
+  const seen = new Set<string>();
+  let simulated = profile;
+  const out: PathwayStep[] = [];
+
+  for (const step of steps) {
+    if (seen.has(step.cardId)) continue;
+    seen.add(step.cardId);
+    const card = catalog.find((c) => c.id === step.cardId);
+    if (!card) continue;
+    const { eligible, reasons } = checkEligibility(card, simulated, catalog);
+    if (!eligible) continue;
+    const incrementalValue = incrementalValueOfCard(card, simulated, catalog);
+    out.push({
+      ...step,
+      incrementalValue,
+      applicationNotes: reasons,
+    });
+    simulated = {
+      ...simulated,
+      ownedCards: [...simulated.ownedCards, emptyOwned(card.id)],
+    };
+  }
+  return out;
+}
+
 export function buildPathways(
   profile: UserProfile,
   catalog: Card[]
@@ -124,7 +173,7 @@ export function buildPathways(
     (c) => c.active && !owned.has(c.id)
   );
 
-  const gapFillSteps: PathwayStep[] = [];
+  const gapFillRaw: PathwayStep[] = [];
   for (const g of gaps.slice(0, 4)) {
     const ranked = candidates
       .map((card) => ({
@@ -144,10 +193,10 @@ export function buildPathways(
       [g.category],
       `Fill ${CATEGORY_LABELS[g.category]} gap (${g.gapReason})`
     );
-    if (step) gapFillSteps.push(step);
+    if (step) gapFillRaw.push(step);
   }
 
-  const cashbackSteps: PathwayStep[] = [];
+  const cashbackRaw: PathwayStep[] = [];
   const cashbackCards = candidates
     .filter((c) => c.tags.includes("cashback") || c.rewardCurrency === "USD")
     .sort(
@@ -163,10 +212,10 @@ export function buildPathways(
       [],
       "Straightforward cash back with low complexity"
     );
-    if (step) cashbackSteps.push(step);
+    if (step) cashbackRaw.push(step);
   }
 
-  const flexSteps: PathwayStep[] = [];
+  const flexRaw: PathwayStep[] = [];
   const flexCards = candidates
     .filter((c) => c.tags.includes("flexible_points"))
     .sort(
@@ -182,10 +231,10 @@ export function buildPathways(
       ["travel"],
       "Flexible transferable points for future travel"
     );
-    if (step) flexSteps.push(step);
+    if (step) flexRaw.push(step);
   }
 
-  const travelSteps: PathwayStep[] = [];
+  const travelRaw: PathwayStep[] = [];
   const travelCards = candidates
     .filter((c) => c.tags.includes("travel") || c.hasLounge)
     .sort(
@@ -201,7 +250,7 @@ export function buildPathways(
       ["flights", "hotels"],
       "Premium travel perks and elevated travel earn"
     );
-    if (step) travelSteps.push(step);
+    if (step) travelRaw.push(step);
   }
 
   function pathwayTotal(steps: PathwayStep[]) {
@@ -217,6 +266,11 @@ export function buildPathways(
     }
     return roles;
   }
+
+  const gapFillSteps = sequentializeSteps(gapFillRaw, profile, catalog);
+  const cashbackSteps = sequentializeSteps(cashbackRaw, profile, catalog);
+  const flexSteps = sequentializeSteps(flexRaw, profile, catalog);
+  const travelSteps = sequentializeSteps(travelRaw, profile, catalog);
 
   return [
     {

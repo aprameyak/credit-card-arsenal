@@ -11,14 +11,17 @@ import { formatCurrency } from "@/lib/utils";
 export default function BenefitsPage() {
   const profile = useArsenalStore((s) => s.profile);
   const catalog = useArsenalStore((s) => s.catalog);
+  const updateOwnedCard = useArsenalStore((s) => s.updateOwnedCard);
 
   const rows = profile.ownedCards.flatMap((oc) => {
     const card = catalog.find((c) => c.id === oc.cardId);
     if (!card) return [];
     return card.credits.map((cr) => ({
+      cardId: oc.cardId,
       cardName: `${card.issuer} ${card.cardName}`,
       credit: cr,
       used: oc.benefitsUsed[cr.id] ?? 0,
+      benefitsUsed: oc.benefitsUsed,
     }));
   });
 
@@ -66,15 +69,38 @@ export default function BenefitsPage() {
                   ? Math.min(100, (r.used / r.credit.annualValue) * 100)
                   : 0;
               return (
-                <Panel key={`${r.cardName}-${r.credit.id}`}>
+                <Panel key={`${r.cardId}-${r.credit.id}`}>
                   <div className="flex flex-wrap justify-between gap-2">
                     <div>
                       <p className="text-sm font-medium text-bone">{r.credit.name}</p>
                       <p className="text-xs text-bone-dim">{r.cardName}</p>
                     </div>
-                    <p className="text-sm text-bone-muted">
-                      {formatCurrency(r.used)} / {formatCurrency(r.credit.annualValue)}
-                    </p>
+                    <label className="flex items-center gap-2 text-sm text-bone-muted">
+                      <span className="text-xs text-bone-dim">Used $</span>
+                      <input
+                        type="number"
+                        min={0}
+                        max={r.credit.annualValue}
+                        className="field w-24"
+                        value={r.used || ""}
+                        onChange={(e) => {
+                          const next = Math.max(
+                            0,
+                            Math.min(
+                              r.credit.annualValue,
+                              Number(e.target.value) || 0
+                            )
+                          );
+                          updateOwnedCard(r.cardId, {
+                            benefitsUsed: {
+                              ...r.benefitsUsed,
+                              [r.credit.id]: next,
+                            },
+                          });
+                        }}
+                      />
+                      <span>/ {formatCurrency(r.credit.annualValue)}</span>
+                    </label>
                   </div>
                   <div className="mt-3 h-2 overflow-hidden rounded-full bg-ink-elevated">
                     <div

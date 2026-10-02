@@ -44,10 +44,6 @@ const COMPLEXITY_RANK: Record<Complexity, number> = {
   advanced: 2,
 };
 
-function maxComplexityForPreference(pref: Complexity): Complexity {
-  return pref;
-}
-
 function cardAllowed(card: Card, max: Complexity): boolean {
   return COMPLEXITY_RANK[card.complexity] <= COMPLEXITY_RANK[max];
 }
@@ -56,11 +52,27 @@ function annualFeesForCards(cards: Card[]): number {
   return cards.reduce((s, c) => s + c.annualFee, 0);
 }
 
-function creditsValue(cards: Card[]): number {
-  return cards.reduce(
-    (s, c) => s + c.credits.reduce((a, cr) => a + cr.annualValue, 0),
-    0
-  );
+function creditsValue(
+  cards: Card[],
+  ownedById?: Map<string, import("../types").OwnedCard>
+): number {
+  return cards.reduce((s, c) => {
+    const owned = ownedById?.get(c.id);
+    return (
+      s +
+      c.credits.reduce((a, cr) => {
+        if (!owned) return a + cr.annualValue;
+        const used = owned.benefitsUsed[cr.id];
+        if (used != null) return a + Math.min(used, cr.annualValue);
+        const status = owned.benefitStatuses?.[cr.id];
+        if (status === "not_valuable" || status === "unused") return a;
+        if (owned.benefitUserValues?.[cr.id] != null) {
+          return a + owned.benefitUserValues[cr.id]!;
+        }
+        return a + cr.annualValue;
+      }, 0)
+    );
+  }, 0);
 }
 
 export function gapCategories(
@@ -171,7 +183,8 @@ export function analyzeArsenal(
   }
 
   const fees = annualFeesForCards(cards);
-  const credits = creditsValue(cards);
+  const ownedById = new Map(pairs.map((p) => [p.card.id, p.owned]));
+  const credits = creditsValue(cards, ownedById);
 
   return {
     roles,
@@ -292,17 +305,15 @@ export function computeWalletStats(
   catalog: Card[]
 ): WalletStats {
   const analysis = analyzeArsenal(profile, catalog);
-  const pairs = getOwnedCardObjects(profile.ownedCards, catalog);
-  const creditValue = pairs.reduce(
-    (s, { card }) =>
-      s + card.credits.reduce((a, c) => a + c.annualValue, 0),
-    0
-  );
+  const creditValue =
+    analysis.netOptimizedValue -
+    analysis.optimizedAnnualRewards +
+    analysis.annualFees;
   return {
     totalRewards: analysis.optimizedAnnualRewards,
     totalFees: analysis.annualFees,
     creditValue,
-    netValue: analysis.optimizedAnnualRewards + creditValue - analysis.annualFees,
+    netValue: analysis.netOptimizedValue,
   };
 }
 
@@ -336,7 +347,7 @@ export function proposeTargetWallets(
   profile: UserProfile,
   catalog: Card[]
 ): WalletConfig[] {
-  const maxCx = maxComplexityForPreference(profile.desiredComplexity);
+  const maxCx = profile.desiredComplexity;
   const active = catalog.filter((c) => c.active && cardAllowed(c, maxCx));
 
   const simplePool = active.filter(
@@ -368,9 +379,13 @@ export function proposeTargetWallets(
   if (optimizedIds.size === 0 && flat) optimizedIds.add(flat.id);
 
   const premiumIds = new Set<string>();
-  const premiumCandidates = travelPool.filter(
-    (c) => cardAllowed(c, maxCx === "simple" ? "moderate" : maxCx)
-  );
+  const premiumCandidates = travelPool
+    .filter((c) => cardAllowed(c, maxCx === "simple" ? "moderate" : maxCx))
+    .filter((c) => {
+      if (profile.feeTolerance === "none") return c.annualFee === 0;
+      if (profile.feeTolerance === "low") return c.annualFee <= 95;
+      return true;
+    });
   for (const cat of ["travel", "flights", "hotels", "dining"] as SpendCategory[]) {
     const best = pickBestForCategory(cat, premiumCandidates, profile);
     if (best) premiumIds.add(best.id);
@@ -419,7 +434,7 @@ export function proposeTargetWallets(
     buildWalletConfig(
       "premium_travel",
       "Premium travel",
-      "Travel-forward stack with transfer partners (respects fee tolerance loosely).",
+      "Travel-forward stack with transfer partners (respects fee tolerance).",
       [...premiumIds],
       catalog,
       profile

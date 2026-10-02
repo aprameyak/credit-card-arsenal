@@ -8,7 +8,7 @@ import {
   Panel,
   Stat,
 } from "@/components/ui";
-import { simulateWalletChange } from "@/lib/engines/simulator";
+import { simulateWallet } from "@/lib/engines/simulator";
 import { useArsenalStore } from "@/lib/store";
 import { formatCurrency } from "@/lib/utils";
 import type { SpendCategory } from "@/lib/types";
@@ -34,7 +34,7 @@ export default function SimulatePage() {
       ? { [spendTweak]: spendAmount }
       : undefined;
 
-  const diff = simulateWalletChange(profile, catalog, {
+  const diff = simulateWallet(profile, catalog, {
     addCardIds: simAdd,
     removeCardIds: simRemove,
     spendingOverrides,
@@ -108,7 +108,10 @@ export default function SimulatePage() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2 animate-rise">
-        <Panel title="Optional spend tweak" subtitle="Overrides one category for this simulation only.">
+        <Panel
+          title="Optional spend tweak"
+          subtitle={`Overrides one category for this simulation only (${profile.spending.mode} amounts).`}
+        >
           <div className="flex flex-col gap-3 sm:flex-row">
             <select
               className="field flex-1"
@@ -128,7 +131,9 @@ export default function SimulatePage() {
               type="number"
               min={0}
               className="field w-full sm:w-32"
-              placeholder="Amount"
+              placeholder={
+                profile.spending.mode === "monthly" ? "Monthly $" : "Annual $"
+              }
               value={spendAmount || ""}
               onChange={(e) => setSpendAmount(Number(e.target.value) || 0)}
             />
