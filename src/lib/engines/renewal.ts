@@ -8,8 +8,7 @@ import {
 
 function pickRenewalAction(
   netOngoing: number,
-  annualFee: number,
-  creditsUsedRatio: number
+  annualFee: number
 ): FeeRenewalAction {
   if (netOngoing >= annualFee * 0.5) return "keep";
   if (netOngoing >= 0) return "reassess_usage";
@@ -54,18 +53,7 @@ export function analyzeFeeRenewals(
       rewardsValue + creditsValue * 0.5 + benefitsValue * 0.3 - card.annualFee;
     const firstYearNet = ongoingNet + welcomeBonusValue;
 
-    const creditsUsed = Object.values(owned.benefitsUsed).reduce(
-      (a, b) => a + b,
-      0
-    );
-    const creditsUsedRatio =
-      creditsValue > 0 ? Math.min(1, creditsUsed / creditsValue) : 0;
-
-    const renewalAction = pickRenewalAction(
-      ongoingNet,
-      card.annualFee,
-      creditsUsedRatio
-    );
+    const renewalAction = pickRenewalAction(ongoingNet, card.annualFee);
 
     const renewalNotes: string[] = [
       "Investigate downgrade or product-change options with your issuer — rules vary.",

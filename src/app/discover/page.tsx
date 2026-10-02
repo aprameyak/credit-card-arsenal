@@ -15,8 +15,6 @@ import { formatCurrency } from "@/lib/utils";
 export default function DiscoverPage() {
   const profile = useArsenalStore((s) => s.profile);
   const catalog = useArsenalStore((s) => s.catalog);
-  const owned = new Set(profile.ownedCards.map((o) => o.cardId));
-
   const [noFeeOnly, setNoFeeOnly] = useState(profile.feeTolerance === "none");
   const [travel, setTravel] = useState(
     profile.goals.some((g) =>
@@ -26,6 +24,7 @@ export default function DiscoverPage() {
   const [simple, setSimple] = useState(profile.desiredComplexity === "simple");
 
   const results = useMemo(() => {
+    const owned = new Set(profile.ownedCards.map((o) => o.cardId));
     return catalog
       .filter((c) => c.active && !owned.has(c.id))
       .filter((c) => (noFeeOnly ? c.annualFee === 0 : true))
@@ -39,14 +38,14 @@ export default function DiscoverPage() {
       )
       .filter((c) => (simple ? c.complexity !== "advanced" : true))
       .sort((a, b) => scoreCard(b, profile.goals) - scoreCard(a, profile.goals));
-  }, [catalog, owned, noFeeOnly, travel, simple, profile.goals]);
+  }, [catalog, profile.ownedCards, noFeeOnly, travel, simple, profile.goals]);
 
   return (
     <div>
       <PageHeader
         eyebrow="Discover"
         title="Personalized catalog"
-        description="Filtered by your goals and fee tolerance — offers shown with verification dates."
+        description="Filtered by goals and fee tolerance."
       />
 
       <Panel className="mb-6 animate-rise" title="Filters">
