@@ -6,7 +6,10 @@ import {
   Panel,
   Stat,
 } from "@/components/ui";
-import { routePurchase } from "@/lib/engines/pathway";
+import {
+  getOwnedCardObjects,
+  routePurchase,
+} from "@/lib/engines/spending";
 import { useArsenalStore } from "@/lib/store";
 import type { SpendCategory } from "@/lib/types";
 import { CATEGORY_LABELS, PRIMARY_CATEGORIES, formatCurrency, formatPercent } from "@/lib/utils";
@@ -17,7 +20,10 @@ export default function BuyPage() {
   const [category, setCategory] = useState<SpendCategory>("online");
   const [amount, setAmount] = useState(120);
 
-  const route = routePurchase(profile, catalog, category, amount);
+  const cards = getOwnedCardObjects(profile.ownedCards, catalog).map(
+    (p) => p.card
+  );
+  const route = routePurchase(category, cards, profile.valuations, amount);
   const discretionary = profile.discretionaryMonthlyTarget;
   const monthlyMode = profile.spending.mode === "monthly";
   const categoryMonthly = monthlyMode
@@ -80,7 +86,7 @@ export default function BuyPage() {
             <div className="mt-4 grid grid-cols-2 gap-3">
               <Stat
                 label="Est. reward"
-                value={formatCurrency(route.estimatedReward, 2)}
+                value={formatCurrency(route.annualRewards, 2)}
                 tone="signal"
               />
               <Stat
@@ -132,7 +138,7 @@ export default function BuyPage() {
               <p className="mt-3 text-sm text-bone-dim">
                 Within a reasonable band vs your target. Still only buy if you
                 need the item — estimated reward is{" "}
-                {route ? formatCurrency(route.estimatedReward, 2) : "—"}, not a
+                {route ? formatCurrency(route.annualRewards, 2) : "—"}, not a
                 reason to inflate spend.
               </p>
             )}

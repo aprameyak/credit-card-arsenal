@@ -1,44 +1,5 @@
 import type { Card, TransferPartner } from "../types";
 
-export interface RewardProgramInfo {
-  id: string;
-  name: string;
-  issuerIds: string[];
-  transferPartners: TransferPartner[];
-}
-
-export function buildProgramIndex(catalog: Card[]): Map<string, RewardProgramInfo> {
-  const map = new Map<string, RewardProgramInfo>();
-  for (const card of catalog) {
-    const key = card.rewardProgram;
-    if (!key) continue;
-    const existing = map.get(key);
-    const partners = card.transferPartners ?? [];
-    if (!existing) {
-      map.set(key, {
-        id: key,
-        name: key,
-        issuerIds: [card.issuer],
-        transferPartners: [...partners],
-      });
-    } else {
-      if (!existing.issuerIds.includes(card.issuer)) {
-        existing.issuerIds.push(card.issuer);
-      }
-      for (const p of partners) {
-        if (
-          !existing.transferPartners.some(
-            (x) => x.name === p.name && x.type === p.type
-          )
-        ) {
-          existing.transferPartners.push(p);
-        }
-      }
-    }
-  }
-  return map;
-}
-
 export function findTransferPartnersByName(
   catalog: Card[],
   name: string,

@@ -2,24 +2,26 @@
   "name": "credit-card-arsenal",
   "version": "0.1.0",
   "private": true,
-  "description": "Wallet-first credit card strategy platform — arsenal coverage, pathways, spending optimization",
+  "description": "Wallet-first credit card coverage, pathways, and spend routing",
   "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
   "dependencies": {
     "clsx": "^2.1.1",
     "framer-motion": "^13.5.0",
-    "lucide-react": "^1.49.0",
     "next": "16.3.8",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "tailwind-merge": "^3.7.0",
-    "zod": "^4.6.5",
     "zustand": "^5.0.15"
   },
   "devDependencies": {

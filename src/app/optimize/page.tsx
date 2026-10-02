@@ -5,23 +5,17 @@ import {
   Panel,
   Stat,
 } from "@/components/ui";
-import { analyzeArsenal, proposeTargetWallets } from "@/lib/engines/arsenal";
+import {
+  analyzeArsenal,
+  diminishingReturnsNote,
+  proposeTargetWallets,
+} from "@/lib/engines/arsenal";
 import {
   getOwnedCardObjects,
   optimizeSpending,
 } from "@/lib/engines/spending";
 import { useArsenalStore } from "@/lib/store";
 import { CATEGORY_LABELS, formatCurrency, formatPercent } from "@/lib/utils";
-
-function diminishingReturnsNote(cardCount: number): string {
-  if (cardCount >= 4) {
-    return "Each new card adds activation overhead and fee drag — marginal category gains shrink after ~3–4 optimized roles.";
-  }
-  if (cardCount === 0) {
-    return "First card captures the largest share of uncategorized spend.";
-  }
-  return "Second and third cards usually fix the biggest category gaps; track fees vs incremental earn.";
-}
 
 export default function OptimizePage() {
   const profile = useArsenalStore((s) => s.profile);
@@ -36,7 +30,7 @@ export default function OptimizePage() {
   );
   const wallets = proposeTargetWallets(profile, catalog);
   const analysis = analyzeArsenal(profile, catalog);
-  const dimNote = diminishingReturnsNote(cards.length);
+  const dimNote = diminishingReturnsNote(profile, catalog);
 
   return (
     <div>

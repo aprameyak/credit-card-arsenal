@@ -18,7 +18,7 @@ export function explainCandidateCard(
 ): ExplanationBlock[] {
   const blocks: ExplanationBlock[] = [];
   const incremental = incrementalValueOfCard(card, profile, catalog);
-  const { eligible, reasons } = checkEligibility(card, profile);
+  const { eligible, reasons } = checkEligibility(card, profile, catalog);
   const welcome = card.welcomeOffer
     ? analyzeWelcomeBonus(
         {
@@ -30,7 +30,8 @@ export function explainCandidateCard(
           welcomeBonusCompleted: false,
           welcomeBonusValueRealized: 0,
         },
-        profile
+        profile,
+        catalog
       )
     : null;
 

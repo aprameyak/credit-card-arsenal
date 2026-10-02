@@ -64,13 +64,6 @@ export function formatPercent(rate: number, digits = 1): string {
   return `${(rate * 100).toFixed(digits)}%`;
 }
 
-export function formatMultiplier(m: number, currency: string): string {
-  if (currency.toLowerCase().includes("cash") || currency === "USD") {
-    return `${m}%`;
-  }
-  return `${m}x`;
-}
-
 export function annualize(
   amount: number,
   mode: "monthly" | "annual"

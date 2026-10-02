@@ -43,7 +43,7 @@ export default function TimelinePage() {
 
     for (const o of profile.ownedCards) {
       if (o.openedAt) {
-        const card = getCardById(o.cardId);
+        const card = getCardById(o.cardId, catalog);
         items.push({
           id: `open-${o.cardId}`,
           date: o.openedAt,
@@ -54,7 +54,7 @@ export default function TimelinePage() {
       }
     }
     for (const h of profile.applicationHistory) {
-      const card = getCardById(h.cardId);
+      const card = getCardById(h.cardId, catalog);
       items.push({
         id: `app-${h.cardId}-${h.appliedAt}`,
         date: h.appliedAt,
@@ -64,7 +64,7 @@ export default function TimelinePage() {
       });
     }
     for (const c of profile.closedCards) {
-      const card = getCardById(c.cardId);
+      const card = getCardById(c.cardId, catalog);
       items.push({
         id: `close-${c.cardId}`,
         date: c.closedAt,
@@ -77,7 +77,7 @@ export default function TimelinePage() {
     return items.sort(
       (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
     );
-  }, [profile]);
+  }, [profile, catalog]);
 
   const planningCards = catalog
     .filter((c) => c.active && !profile.ownedCards.some((o) => o.cardId === c.id))
@@ -121,7 +121,7 @@ export default function TimelinePage() {
         </p>
         <ul className="space-y-4">
           {planningCards.map((card) => {
-            const { eligible, reasons } = checkEligibility(card, profile);
+            const { eligible, reasons } = checkEligibility(card, profile, catalog);
             const published = card.applicationRules.filter(
               (r) => r.sourceType === "issuer_published"
             );

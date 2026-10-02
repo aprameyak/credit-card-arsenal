@@ -363,15 +363,6 @@ export interface ComplexityScore {
   factors: string[];
 }
 
-export interface Reminder {
-  id: string;
-  type: "welcome_deadline" | "renewal_review" | "benefit_use" | "general";
-  title: string;
-  body: string;
-  dueAt: string | null;
-  cardId?: string;
-}
-
 export interface ExplanationBlock {
   id: string;
   title: string;

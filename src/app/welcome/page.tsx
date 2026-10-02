@@ -14,8 +14,9 @@ import { formatCurrency } from "@/lib/utils";
 
 export default function WelcomePage() {
   const profile = useArsenalStore((s) => s.profile);
+  const catalog = useArsenalStore((s) => s.catalog);
   const updateOwnedCard = useArsenalStore((s) => s.updateOwnedCard);
-  const analyses = analyzeAllWelcomeBonuses(profile);
+  const analyses = analyzeAllWelcomeBonuses(profile, catalog);
 
   return (
     <div>
@@ -33,7 +34,7 @@ export default function WelcomePage() {
       ) : (
         <div className="space-y-6 animate-rise">
           {analyses.map((a) => {
-            const card = getCardById(a.cardId);
+            const card = getCardById(a.cardId, catalog);
             const pct =
               a.spendRequirement > 0
                 ? Math.min(

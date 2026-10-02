@@ -29,7 +29,7 @@ export default function FeesPage() {
       />
 
       {pairs.length === 0 ? (
-        <EmptyState title="No fee-bearing cards" description="Add cards to analyze fee drag." />
+        <EmptyState title="No cards in wallet" description="Add cards to analyze fee drag." />
       ) : (
         <>
           <div className="mb-6 grid gap-3 sm:grid-cols-3 animate-rise">

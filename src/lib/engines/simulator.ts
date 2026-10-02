@@ -11,7 +11,7 @@ import type {
 import { analyzeArsenal, computeWalletStats } from "./arsenal";
 import { scoreWalletComplexity } from "./complexity";
 import { listEcosystemsForWallet } from "./ecosystems";
-import { emptySpending, getOwnedCardObjects } from "./spending";
+import { getOwnedCardObjects } from "./spending";
 
 export interface SimulateWalletOptions {
   addCardIds?: string[];
@@ -120,10 +120,6 @@ export function simulateWallet(
     complexityBefore,
     complexityAfter,
   };
-}
-
-export function emptySimulateGuard(profile: UserProfile): SpendingProfile {
-  return profile.spending ?? emptySpending();
 }
 
 export function simulateWalletChange(

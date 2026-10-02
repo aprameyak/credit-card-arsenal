@@ -4,13 +4,10 @@ export const AnalyticsEvents = {
   CARD_REMOVED: "card_removed",
   SPENDING_UPDATED: "spending_updated",
   VALUATION_UPDATED: "valuation_updated",
-  OPTIMIZATION_RUN: "optimization_run",
-  SIMULATION_RUN: "simulation_run",
   PROFILE_EXPORT: "profile_export",
   PROFILE_IMPORT: "profile_import",
   DATA_DELETED: "data_deleted",
   DEMO_LOADED: "demo_loaded",
-  PATHWAY_VIEWED: "pathway_viewed",
 } as const;
 
 export type AnalyticsEventName =
@@ -62,15 +59,4 @@ export function trackEvent(
   }
   const next = [...readLog(), record];
   writeLog(next);
-}
-
-export function getAnalyticsLog(): AnalyticsEventRecord[] {
-  return readLog();
-}
-
-export function clearAnalyticsLog(): void {
-  if (typeof window === "undefined") return;
-  try {
-    localStorage.removeItem(LOG_KEY);
-  } catch {}
 }

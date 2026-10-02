@@ -9,7 +9,7 @@ import type {
   WelcomeOffer,
 } from "../types";
 
-const VERIFIED = "2025-10-01";
+const VERIFIED = "2026-10-01";
 
 function rule(
   category: SpendCategory,
@@ -833,10 +833,9 @@ export const CARD_DATABASE: Card[] = [
   },
 ];
 
-export function getCardById(id: string): Card | undefined {
-  return CARD_DATABASE.find((c) => c.id === id);
-}
-
-export function getActiveCards(catalog: Card[] = CARD_DATABASE): Card[] {
-  return catalog.filter((c) => c.active);
+export function getCardById(
+  id: string,
+  catalog: Card[] = CARD_DATABASE
+): Card | undefined {
+  return catalog.find((c) => c.id === id) ?? CARD_DATABASE.find((c) => c.id === id);
 }

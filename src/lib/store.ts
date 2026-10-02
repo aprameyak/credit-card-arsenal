@@ -8,7 +8,6 @@ import { emptySpending } from "./engines/spending";
 import { AnalyticsEvents, trackEvent } from "./analytics";
 import type {
   Card,
-  Goal,
   OwnedCard,
   PointValuation,
   SpendCategory,
@@ -55,10 +54,8 @@ export interface ArsenalState {
   catalog: Card[];
   setProfile: (partial: Partial<UserProfile>) => void;
   patchProfile: (partial: Partial<UserProfile>) => void;
-  setGoals: (goals: Goal[]) => void;
   toggleOwnedCard: (cardId: string) => void;
   completeOnboarding: () => void;
-  setValuation: (currency: string, centsPerPoint: number) => void;
   addOwnedCard: (owned: OwnedCard) => void;
   removeOwnedCard: (cardId: string) => void;
   updateOwnedCard: (cardId: string, partial: Partial<OwnedCard>) => void;
@@ -91,8 +88,6 @@ export const useArsenalStore = create<ArsenalState>()(
 
       patchProfile: (partial) => get().setProfile(partial),
 
-      setGoals: (goals) => get().setProfile({ goals }),
-
       toggleOwnedCard: (cardId) => {
         const { profile } = get();
         const exists = profile.ownedCards.some((o) => o.cardId === cardId);
@@ -115,9 +110,6 @@ export const useArsenalStore = create<ArsenalState>()(
         get().setProfile({ onboardingComplete: true });
         trackEvent(AnalyticsEvents.ONBOARDING_COMPLETE);
       },
-
-      setValuation: (currency, centsPerPoint) =>
-        get().updateValuation(currency, centsPerPoint),
 
       addOwnedCard: (owned) =>
         set((s) => {

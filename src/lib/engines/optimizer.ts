@@ -41,7 +41,7 @@ export function runOptimization(
   const candidates = catalog
     .filter((c) => c.active && !ownedIds.has(c.id))
     .map((card) => {
-      const { eligible, reasons } = checkEligibility(card, profile);
+      const { eligible, reasons } = checkEligibility(card, profile, catalog);
       const incremental = incrementalValueOfCard(card, profile, catalog);
       const welcomeValue = card.welcomeOffer?.estimatedValue ?? 0;
       const firstYearIncremental = incremental + (eligible ? welcomeValue : 0);

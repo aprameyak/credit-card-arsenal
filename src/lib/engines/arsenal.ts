@@ -280,13 +280,6 @@ function pickBestForCategory(
   return best;
 }
 
-export function computeCategoryCoverage(
-  profile: UserProfile,
-  catalog: Card[]
-): CategoryCoverage[] {
-  return analyzeArsenal(profile, catalog).coverage;
-}
-
 export interface WalletStats {
   totalRewards: number;
   totalFees: number;
@@ -311,43 +304,6 @@ export function computeWalletStats(
     creditValue,
     netValue: analysis.optimizedAnnualRewards + creditValue - analysis.annualFees,
   };
-}
-
-export function inferWalletRoles(
-  profile: UserProfile,
-  catalog: Card[]
-): Record<string, { role: string }> {
-  const cards = getOwnedCardObjects(profile.ownedCards, catalog).map((p) => p.card);
-  const { routing } = optimizeSpending(
-    cards,
-    profile.spending,
-    profile.valuations
-  );
-  const byCard = new Map<string, SpendCategory[]>();
-  for (const r of routing) {
-    const list = byCard.get(r.cardId) ?? [];
-    list.push(r.category);
-    byCard.set(r.cardId, list);
-  }
-  const out: Record<string, { role: string }> = {};
-  for (const oc of profile.ownedCards) {
-    if (oc.assignedRole) {
-      out[oc.cardId] = {
-        role:
-          oc.assignedRole === "catchall"
-            ? "Catch-all / everything else"
-            : `Assigned: ${oc.assignedRole}`,
-      };
-      continue;
-    }
-    const cats = byCard.get(oc.cardId);
-    out[oc.cardId] = {
-      role: cats?.length
-        ? `Best for ${cats.slice(0, 3).join(", ")}`
-        : "Supporting card",
-    };
-  }
-  return out;
 }
 
 export function computeRouting(
@@ -478,5 +434,3 @@ export function proposeTargetWallets(
     ),
   ];
 }
-
-export const suggestTargetWallets = proposeTargetWallets;

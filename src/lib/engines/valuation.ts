@@ -107,28 +107,6 @@ export function effectiveReturnRate(
   return (multiplier * centsPerPoint) / 100;
 }
 
-export function getCentsPerPoint(
-  currency: string,
-  valuations: PointValuation[]
-): number {
-  return resolveValuation(currency, valuations).centsPerPoint;
-}
-
-export function effectiveRateFromMultiplier(
-  card: Card,
-  multiplier: number,
-  valuations: PointValuation[]
-): number {
-  const isCash =
-    card.rewardCurrency === "USD" || card.tags.includes("cashback");
-  return effectiveReturnRate(
-    multiplier,
-    isCash ? "cashback" : "points",
-    card.rewardCurrency,
-    valuations
-  );
-}
-
 export function mergeValuations(
   user: PointValuation[] | undefined
 ): PointValuation[] {

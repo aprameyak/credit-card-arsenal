@@ -1,4 +1,4 @@
-import type { OwnedCard, UserProfile, WelcomeBonusAnalysis } from "../types";
+import type { Card, OwnedCard, UserProfile, WelcomeBonusAnalysis } from "../types";
 import { getCardById } from "../cards/database";
 import { getTotalAnnualSpend } from "./spending";
 
@@ -16,9 +16,10 @@ function addMonths(iso: string, months: number): string {
 
 export function analyzeWelcomeBonus(
   owned: OwnedCard,
-  profile: UserProfile
+  profile: UserProfile,
+  catalog?: Card[]
 ): WelcomeBonusAnalysis | null {
-  const card = getCardById(owned.cardId);
+  const card = getCardById(owned.cardId, catalog);
   if (!card?.welcomeOffer) return null;
   if (owned.welcomeBonusCompleted) {
     return {
@@ -82,9 +83,10 @@ export function analyzeWelcomeBonus(
 }
 
 export function analyzeAllWelcomeBonuses(
-  profile: UserProfile
+  profile: UserProfile,
+  catalog?: Card[]
 ): WelcomeBonusAnalysis[] {
   return profile.ownedCards
-    .map((o) => analyzeWelcomeBonus(o, profile))
+    .map((o) => analyzeWelcomeBonus(o, profile, catalog))
     .filter((x): x is WelcomeBonusAnalysis => x != null);
 }

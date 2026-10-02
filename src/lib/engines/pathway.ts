@@ -5,11 +5,6 @@ import type {
   SpendCategory,
   UserProfile,
 } from "../types";
-import {
-  categoryEffectiveRate,
-  estimateRewardsForCategory,
-  getOwnedCardObjects,
-} from "./spending";
 import { CATEGORY_LABELS, monthsBetween } from "../utils";
 import { getCardById } from "../cards/database";
 import { incrementalValueOfCard, gapCategories, analyzeArsenal } from "./arsenal";
@@ -19,18 +14,18 @@ export interface EligibilityResult {
   reasons: string[];
 }
 
-function countChase524(profile: UserProfile): number {
+function countChase524(profile: UserProfile, catalog?: Card[]): number {
   let n = 0;
   for (const entry of profile.applicationHistory) {
     if (entry.outcome !== "approved") continue;
-    const card = getCardById(entry.cardId);
+    const card = getCardById(entry.cardId, catalog);
     if (!card || card.issuer !== "Chase") continue;
     if (card.businessOrPersonal === "business") continue;
     if (monthsBetween(entry.appliedAt) < 24) n += 1;
   }
   for (const owned of profile.ownedCards) {
     if (!owned.openedAt) continue;
-    const card = getCardById(owned.cardId);
+    const card = getCardById(owned.cardId, catalog);
     if (!card || card.issuer !== "Chase") continue;
     if (card.businessOrPersonal === "business") continue;
     if (monthsBetween(owned.openedAt) < 24) n += 1;
@@ -40,14 +35,15 @@ function countChase524(profile: UserProfile): number {
 
 export function checkEligibility(
   card: Card,
-  profile: UserProfile
+  profile: UserProfile,
+  catalog?: Card[]
 ): EligibilityResult {
   const reasons: string[] = [];
   let eligible = true;
 
   for (const rule of card.applicationRules) {
     if (rule.ruleKey === "5_24" && card.issuer === "Chase") {
-      const count = countChase524(profile);
+      const count = countChase524(profile, catalog);
       if (count >= 5) {
         eligible = false;
         reasons.push(
@@ -59,7 +55,7 @@ export function checkEligibility(
     }
     if (rule.ruleKey === "one_sapphire") {
       const hasSapphire = profile.ownedCards.some((o) => {
-        const c = getCardById(o.cardId);
+        const c = getCardById(o.cardId, catalog);
         return c?.productFamily === "sapphire";
       });
       if (hasSapphire && card.productFamily === "sapphire") {
@@ -71,7 +67,7 @@ export function checkEligibility(
       const prior = profile.applicationHistory.some(
         (h) =>
           h.cardId === card.id ||
-          (getCardById(h.cardId)?.productFamily === card.productFamily &&
+          (getCardById(h.cardId, catalog)?.productFamily === card.productFamily &&
             h.outcome === "approved")
       );
       if (prior) {
@@ -103,7 +99,7 @@ function stepForCard(
   fills: SpendCategory[],
   reason: string
 ): PathwayStep | null {
-  const { eligible, reasons } = checkEligibility(card, profile);
+  const { eligible, reasons } = checkEligibility(card, profile, catalog);
   if (!eligible) return null;
   const incrementalValue = incrementalValueOfCard(card, profile, catalog);
   return {
@@ -115,50 +111,6 @@ function stepForCard(
     fillsGaps: fills,
     applicationNotes: reasons,
   };
-}
-
-export interface PurchaseRouteResult {
-  category: SpendCategory;
-  cardId: string;
-  cardName: string;
-  effectiveRate: number;
-  estimatedReward: number;
-  assumptions: string[];
-}
-
-export function routePurchase(
-  profile: UserProfile,
-  catalog: Card[],
-  category: SpendCategory,
-  amount: number
-): PurchaseRouteResult | null {
-  const cards = getOwnedCardObjects(profile.ownedCards, catalog).map(
-    (p) => p.card
-  );
-  if (cards.length === 0) return null;
-
-  let best: PurchaseRouteResult | null = null;
-
-  for (const card of cards) {
-    const { rewards, assumptions } = estimateRewardsForCategory(
-      card,
-      category,
-      amount,
-      profile.valuations
-    );
-    if (!best || rewards > best.estimatedReward) {
-      best = {
-        category,
-        cardId: card.id,
-        cardName: card.cardName,
-        effectiveRate: categoryEffectiveRate(card, category, profile.valuations),
-        estimatedReward: rewards,
-        assumptions,
-      };
-    }
-  }
-
-  return best;
 }
 
 export function buildPathways(
@@ -311,5 +263,3 @@ export function buildPathways(
     },
   ];
 }
-
-export const generatePathways = buildPathways;

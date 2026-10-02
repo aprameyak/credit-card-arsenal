@@ -29,7 +29,7 @@ export default function ArsenalDashboardPage() {
   const pairs = getOwnedCardObjects(profile.ownedCards, catalog);
   const gaps = gapCategories(analysis.coverage);
   const routing = computeRouting(profile, catalog);
-  const welcome = analyzeAllWelcomeBonuses(profile).filter((w) => !w.completed);
+  const welcome = analyzeAllWelcomeBonuses(profile, catalog).filter((w) => !w.completed);
 
   if (profile.ownedCards.length === 0) {
     return (

@@ -64,7 +64,8 @@ function renewalActionForNet(
 export function analyzeCardFees(
   profile: UserProfile,
   card: Card,
-  owned?: OwnedCard
+  owned?: OwnedCard,
+  catalog?: Card[]
 ): FeeAnalysis {
   const soloRewards = optimizeSpending(
     [card],
@@ -77,7 +78,7 @@ export function analyzeCardFees(
   const benefitsValue = userBenefitsValue(card, owned);
 
   const welcome = owned
-    ? analyzeWelcomeBonus(owned, profile)
+    ? analyzeWelcomeBonus(owned, profile, catalog)
     : null;
   const welcomeBonusValue =
     welcome && !welcome.completed
@@ -118,6 +119,6 @@ export function analyzeRenewals(
   catalog: Card[]
 ): FeeAnalysis[] {
   return getOwnedCardObjects(profile.ownedCards, catalog).map(({ card, owned }) =>
-    analyzeCardFees(profile, card, owned)
+    analyzeCardFees(profile, card, owned, catalog)
   );
 }

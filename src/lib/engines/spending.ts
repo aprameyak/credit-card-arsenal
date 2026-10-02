@@ -303,14 +303,6 @@ export function optimizedStrategyValue(
   return optimizeSpending(cards, spending, valuations).totalRewards;
 }
 
-export function buildCoverageMap(
-  cards: Card[],
-  spending: SpendingProfile,
-  valuations: PointValuation[]
-): RoutingResult[] {
-  return optimizeSpending(cards, spending, valuations).routing;
-}
-
 export function routePurchase(
   category: SpendCategory,
   cards: Card[],
