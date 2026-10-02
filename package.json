@@ -1,7 +1,9 @@
 {
-  "name": "arsenal",
+  "name": "credit-card-arsenal",
   "version": "0.1.0",
   "private": true,
+  "description": "Wallet-first credit card strategy platform — arsenal coverage, pathways, spending optimization",
+  "license": "MIT",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

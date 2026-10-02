@@ -42,6 +42,7 @@ Open [http://localhost:3000](http://localhost:3000) (or the port Next assigns). 
 | `/calendar` | Monthly / quarterly guide |
 | `/router` | What card should I use? (mobile-first) |
 | `/buy` | Payment optimization vs spending context |
+| `/spending` | Spending profile & category mix |
 | `/optimize` | Routing lift + target wallets |
 | `/simulate` | What-if simulator |
 | `/compare` | Incremental wallet comparison |
@@ -69,8 +70,12 @@ Financial calculation fixtures live under `src/lib/engines/__tests__` and `src/l
 
 ## Stack
 
-Next.js · React · TypeScript · Tailwind · Zustand · Vitest · Prisma schema prepared for future Postgres.
+Next.js · React · TypeScript · Tailwind · Zustand · Vitest
 
 ## Disclaimer
 
 Not financial advice. Verify issuer terms. Point valuations are assumptions, not guaranteed cash value. Community-reported application heuristics are labeled separately from published issuer rules.
+
+## License
+
+MIT
