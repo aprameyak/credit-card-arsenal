@@ -1,0 +1,117 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Card {
+  id                    String   @id
+  issuer                String
+  cardName              String
+  cardNetwork           String
+  annualFee             Float
+  foreignTransactionFee Float
+  baseRewardRate        Float
+  rewardCurrency        String
+  rewardProgram         String
+  productFamily         String
+  businessOrPersonal    String
+  complexity            String
+  hasLounge             Boolean  @default(false)
+  hasHotelBenefits      Boolean  @default(false)
+  hasAirlineBenefits    Boolean  @default(false)
+  tagsJson              String   @default("[]")
+  lastVerifiedAt        DateTime
+  sourceReferencesJson  String   @default("[]")
+  active                Boolean  @default(true)
+  categoryRewards       CategoryReward[]
+  credits               CardCredit[]
+  benefits              CardBenefit[]
+  transferPartners      TransferPartner[]
+  applicationRules      ApplicationRule[]
+  welcomeOffer          WelcomeOffer?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}
+
+model CategoryReward {
+  id                String    @id @default(cuid())
+  cardId            String
+  card              Card      @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  category          String
+  multiplier        Float
+  rewardType        String
+  cap               Float?
+  period            String
+  restrictionsJson  String    @default("[]")
+  onlineOnly        Boolean   @default(false)
+  mobileWalletOnly  Boolean   @default(false)
+  directBookingOnly Boolean   @default(false)
+  effectiveFrom     DateTime
+  effectiveTo       DateTime?
+  lastVerifiedAt    DateTime
+}
+
+model CardCredit {
+  id                 String    @id @default(cuid())
+  cardId             String
+  card               Card      @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  name               String
+  annualValue        Float
+  description        String
+  requiresActivation Boolean   @default(false)
+  effectiveFrom      DateTime
+  effectiveTo        DateTime?
+  lastVerifiedAt     DateTime
+}
+
+model CardBenefit {
+  id                   String    @id @default(cuid())
+  cardId               String
+  card                 Card      @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  name                 String
+  category             String
+  estimatedAnnualValue Float
+  description          String
+  effectiveFrom        DateTime
+  effectiveTo          DateTime?
+  lastVerifiedAt       DateTime
+}
+
+model WelcomeOffer {
+  id               String    @id @default(cuid())
+  cardId           String    @unique
+  card             Card      @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  description      String
+  bonusAmount      Float
+  bonusType        String
+  spendRequirement Float
+  timeWindowMonths Int
+  estimatedValue   Float
+  effectiveFrom    DateTime
+  effectiveTo      DateTime?
+  lastVerifiedAt   DateTime
+}
+
+model TransferPartner {
+  id            String @id @default(cuid())
+  cardId        String
+  card          Card   @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  name          String
+  type          String
+  transferRatio String
+}
+
+model ApplicationRule {
+  id             String   @id @default(cuid())
+  cardId         String
+  card           Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  issuer         String
+  description    String
+  ruleKey        String?
+  details        String?
+  lastVerifiedAt DateTime
+}

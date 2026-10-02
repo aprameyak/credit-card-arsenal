@@ -1,26 +1,164 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --ink: #070b14;
+  --ink-elevated: #0c1220;
+  --ink-muted: #111827;
+  --panel: rgba(12, 18, 32, 0.72);
+  --panel-hover: rgba(46, 196, 166, 0.08);
+  --line: rgba(232, 228, 220, 0.08);
+  --line-strong: rgba(232, 228, 220, 0.14);
+  --bone: #e8e4dc;
+  --bone-muted: rgba(232, 228, 220, 0.72);
+  --bone-dim: rgba(232, 228, 220, 0.45);
+  --signal: #2ec4a6;
+  --signal-dim: rgba(46, 196, 166, 0.65);
+  --amber: #e6a23c;
+  --danger: #ef6461;
+  --steel: #3d4f6f;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-ink: var(--ink);
+  --color-ink-elevated: var(--ink-elevated);
+  --color-ink-muted: var(--ink-muted);
+  --color-panel: var(--panel);
+  --color-panel-hover: var(--panel-hover);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-bone: var(--bone);
+  --color-bone-muted: var(--bone-muted);
+  --color-bone-dim: var(--bone-dim);
+  --color-signal: var(--signal);
+  --color-signal-dim: var(--signal-dim);
+  --color-amber: var(--amber);
+  --color-danger: var(--danger);
+  --color-steel: var(--steel);
+  --font-sans: var(--font-dm-sans);
+  --font-display: var(--font-syne);
+  --font-mono: var(--font-jetbrains);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  color-scheme: dark;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--ink);
+  color: var(--bone);
+  font-family: var(--font-dm-sans), system-ui, sans-serif;
+  min-height: 100vh;
+}
+
+.font-display {
+  font-family: var(--font-syne), system-ui, sans-serif;
+}
+
+.text-bone {
+  color: var(--bone);
+}
+.text-bone-muted {
+  color: var(--bone-muted);
+}
+.text-bone-dim {
+  color: var(--bone-dim);
+}
+.text-signal {
+  color: var(--signal);
+}
+.text-amber {
+  color: var(--amber);
+}
+.text-danger {
+  color: var(--danger);
+}
+.bg-panel {
+  background: var(--panel);
+}
+.border-line {
+  border-color: var(--line);
+}
+.border-line-strong {
+  border-color: var(--line-strong);
+}
+.bg-ink-elevated {
+  background: var(--ink-elevated);
+}
+.bg-signal\/15 {
+  background: rgba(46, 196, 166, 0.15);
+}
+.bg-panel-hover {
+  background: var(--panel-hover);
+}
+
+.app-atmosphere {
+  position: relative;
+  isolation: isolate;
+  min-height: 100vh;
+  background-color: var(--ink);
+  background-image:
+    linear-gradient(rgba(46, 196, 166, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(46, 196, 166, 0.03) 1px, transparent 1px),
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(46, 196, 166, 0.12), transparent),
+    radial-gradient(ellipse 60% 40% at 100% 100%, rgba(61, 79, 111, 0.25), transparent);
+  background-size:
+    48px 48px,
+    48px 48px,
+    100% 100%,
+    100% 100%;
+}
+
+.glass-panel {
+  background: linear-gradient(
+    145deg,
+    rgba(12, 18, 32, 0.85) 0%,
+    rgba(7, 11, 20, 0.65) 100%
+  );
+  border: 1px solid var(--line);
+  backdrop-filter: blur(12px);
+  box-shadow:
+    0 1px 0 rgba(232, 228, 220, 0.04) inset,
+    0 8px 32px rgba(0, 0, 0, 0.35);
+}
+
+.field {
+  width: 100%;
+  border-radius: 0.375rem;
+  border: 1px solid var(--line-strong);
+  background: var(--ink-elevated);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  color: var(--bone);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.field:focus {
+  outline: none;
+  border-color: rgba(46, 196, 166, 0.45);
+  box-shadow: 0 0 0 3px rgba(46, 196, 166, 0.12);
+}
+
+.field::placeholder {
+  color: var(--bone-dim);
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-rise {
+  animation: rise 0.45s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-rise {
+    animation: none;
+  }
 }
