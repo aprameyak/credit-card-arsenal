@@ -1,3 +1,5 @@
+This project now lives in [routely/optimizer](https://github.com/aprameyak/routely/tree/main/optimizer).
+
 # Credit Card Arsenal
 
 A browser-only tool for people who carry several credit cards. You enter the cards you own and your monthly or annual spending, and it shows which card to use per category, where your wallet has gaps, and what adding or dropping a card would change. Everything runs on the client and is stored in your browser.
