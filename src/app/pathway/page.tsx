@@ -20,22 +20,22 @@ const BRANCH_META: Record<
   gap_fill: {
     label: "Gap fill",
     accent: "border-signal/50",
-    trunk: "from-signal/40",
+    trunk: "bg-signal/40",
   },
   cashback: {
     label: "Cashback branch",
     accent: "border-emerald-500/40",
-    trunk: "from-emerald-500/30",
+    trunk: "bg-emerald-500/30",
   },
   flexible_points: {
     label: "Flexible points",
     accent: "border-sky-500/40",
-    trunk: "from-sky-500/30",
+    trunk: "bg-sky-500/30",
   },
   travel: {
     label: "Travel branch",
     accent: "border-violet-500/40",
-    trunk: "from-violet-500/30",
+    trunk: "bg-stone-500/30",
   },
 };
 
@@ -120,7 +120,7 @@ export default function PathwayPage() {
 
                   <div className="relative">
                     <div
-                      className={`absolute left-4 top-0 bottom-0 w-0.5 bg-gradient-to-b ${meta.trunk} to-transparent`}
+                      className={`absolute left-4 top-0 bottom-0 w-0.5 ${meta.trunk}`}
                       aria-hidden
                     />
                     <ul className="space-y-4 pl-2">

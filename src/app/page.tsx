@@ -32,11 +32,6 @@ export default function LandingPage() {
 
   return (
     <div className="relative min-h-screen overflow-hidden app-atmosphere">
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(46,196,166,0.16),_transparent_55%)]" />
-        <div className="absolute inset-0 bg-[linear-gradient(to_bottom,transparent_45%,#070b14_92%)]" />
-      </div>
-
       <header className="relative z-10 mx-auto flex max-w-5xl items-center justify-between px-6 py-6">
         <span className="font-display text-lg font-bold text-bone">Arsenal</span>
         <button

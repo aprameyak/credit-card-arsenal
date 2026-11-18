@@ -96,24 +96,10 @@ body {
   isolation: isolate;
   min-height: 100vh;
   background-color: var(--ink);
-  background-image:
-    linear-gradient(rgba(46, 196, 166, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(46, 196, 166, 0.03) 1px, transparent 1px),
-    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(46, 196, 166, 0.12), transparent),
-    radial-gradient(ellipse 60% 40% at 100% 100%, rgba(61, 79, 111, 0.25), transparent);
-  background-size:
-    48px 48px,
-    48px 48px,
-    100% 100%,
-    100% 100%;
 }
 
 .glass-panel {
-  background: linear-gradient(
-    145deg,
-    rgba(12, 18, 32, 0.85) 0%,
-    rgba(7, 11, 20, 0.65) 100%
-  );
+  background: rgba(10, 15, 26, 0.75);
   border: 1px solid var(--line);
   backdrop-filter: blur(12px);
   box-shadow:
